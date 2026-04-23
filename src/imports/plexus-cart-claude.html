@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Plexus – Cart & Checkout</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<style>
+:root {
+  --plexus-red: #C8102E;
+  --plexus-red-dark: #a00d24;
+  --plexus-red-light: #f9e8eb;
+  --plexus-red-mid: #e8c0c8;
+  --paypal-blue: #003087;
+  --paypal-gold: #009cde;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --text-muted: #888;
+  --border: #e0e0e0;
+  --bg: #f5f5f5;
+  --white: #fff;
+  --success: #2e7d32;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:15px;line-height:1.5}
+
+/* ─── HEADER ─── */
+.site-header{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
+.header-banner{background:var(--plexus-red);color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:500}
+.header-banner a{color:#fff;text-decoration:underline;cursor:pointer}
+.header-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'DM Serif Display',serif;font-size:28px;color:var(--plexus-red);letter-spacing:-1px;cursor:pointer}
+.logo span{font-size:11px;vertical-align:super;color:var(--text-muted)}
+.nav{display:flex;gap:28px}
+.nav a{color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:500;cursor:pointer;transition:color .2s}
+.nav a:hover{color:var(--plexus-red)}
+.header-actions{display:flex;align-items:center;gap:20px}
+.header-actions a{color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px}
+.cart-badge{background:var(--plexus-red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+
+/* ─── PAGE ─── */
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── CART LAYOUT ─── */
+.cart-container{max-width:1280px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start}
+.cart-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.cart-title{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400}
+.cart-title span{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:400;color:var(--text-secondary);margin-left:8px}
+.cart-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;letter-spacing:.3px;white-space:nowrap}
+.btn-primary{background:var(--plexus-red);color:#fff}
+.btn-primary:hover{background:var(--plexus-red-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(200,16,46,0.3)}
+.btn-outline{background:#fff;color:var(--text-primary);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--text-primary);background:#f8f8f8}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:none;font-size:13px}
+.btn-ghost:hover{color:var(--plexus-red)}
+.btn-lg{padding:14px 28px;font-size:16px;border-radius:8px}
+.btn-full{width:100%}
+.btn-dark{background:#1a1a1a;color:#fff}
+.btn-dark:hover{background:#333}
+.btn-red-outline{background:#fff;color:var(--plexus-red);border:1.5px solid var(--plexus-red)}
+.btn-red-outline:hover{background:var(--plexus-red-light)}
+
+/* ─── VIP BANNER ─── */
+.vip-banner{background:var(--plexus-red-light);border:1.5px solid var(--plexus-red-mid);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+.vip-banner-left{display:flex;align-items:center;gap:10px}
+.vip-icon{color:var(--plexus-red);font-size:20px}
+.vip-banner h3{font-size:15px;font-weight:700;color:var(--plexus-red)}
+.vip-banner p{font-size:13px;color:var(--text-secondary);margin-top:2px}
+.vip-removed-banner{background:#fff;border:1.5px dashed var(--plexus-red-mid);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+
+/* ─── CART ITEM CARD ─── */
+.cart-item{background:var(--white);border-radius:var(--radius);padding:20px;margin-bottom:12px;box-shadow:var(--shadow-sm);transition:all .3s;position:relative}
+.cart-item.removing{opacity:0;transform:translateX(-20px);pointer-events:none}
+.item-header{display:flex;gap:16px;align-items:flex-start}
+.item-img{width:72px;height:72px;object-fit:cover;border-radius:8px;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.item-img img{width:100%;height:100%;object-fit:cover}
+.item-img-placeholder{width:72px;height:72px;border-radius:8px;background:linear-gradient(135deg,#f8e8ea,#fce4e8);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:28px}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:15px;font-weight:600;color:var(--text-primary)}
+.item-subtitle{font-size:13px;color:var(--text-secondary);margin-top:1px}
+.item-price-col{text-align:right;flex-shrink:0}
+.item-price{font-size:16px;font-weight:700;color:var(--text-primary)}
+.item-pv{font-size:12px;color:var(--text-muted);margin-top:2px}
+.item-trash{color:#c00;cursor:pointer;padding:6px;border-radius:6px;transition:background .2s;background:none;border:none;display:flex;align-items:center;justify-content:center;align-self:flex-start;margin-left:8px}
+.item-trash:hover{background:#fce8e8}
+
+/* ─── SELECTIONS ─── */
+.selections-toggle{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--text-primary);cursor:pointer;margin-top:12px;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif}
+.selections-toggle .material-icons-round{font-size:16px;color:var(--plexus-red);transition:transform .2s}
+.selections-toggle.open .material-icons-round{transform:rotate(0deg)}
+.selections-body{margin-top:10px}
+.selections-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.sel-dropdown{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:#fff;min-width:180px;gap:8px;font-family:'DM Sans',sans-serif;color:var(--text-primary);appearance:none;flex:1}
+.sel-dropdown:focus{outline:none;border-color:var(--plexus-red)}
+select.sel-dropdown{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+
+/* ─── COLOR SWATCHES ─── */
+.swatches-section{margin-bottom:10px}
+.swatches-label{font-size:13px;color:var(--text-secondary);margin-bottom:8px}
+.swatches-label strong{color:var(--text-primary)}
+.swatches-group{margin-bottom:10px}
+.swatches-group-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px;font-weight:600}
+.swatches-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .2s;position:relative}
+.swatch.active{border-color:var(--plexus-red);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--plexus-red)}
+.swatch:hover{transform:scale(1.1)}
+
+/* ─── QTY ─── */
+.qty-row{display:flex;align-items:center;gap:12px;margin:12px 0}
+.qty-ctrl{display:flex;align-items:center;gap:0;border:1.5px solid var(--border);border-radius:6px;overflow:hidden}
+.qty-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-primary);transition:background .2s;font-weight:300}
+.qty-btn:hover{background:#f5f5f5}
+.qty-val{min-width:36px;text-align:center;font-size:15px;font-weight:600;padding:0 4px;user-select:none}
+
+/* ─── SUBSCRIPTION ─── */
+.sub-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.checkbox-custom{width:18px;height:18px;border:2px solid var(--plexus-red);border-radius:3px;background:var(--plexus-red);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:1px;transition:all .2s}
+.checkbox-custom.unchecked{background:#fff;border-color:var(--border)}
+.checkbox-custom .material-icons-round{font-size:13px;color:#fff}
+.sub-label{font-size:13px;font-weight:700;color:var(--plexus-red)}
+.sub-date{font-size:12px;color:var(--text-secondary);margin-top:2px}
+
+/* ─── UNDO BAR ─── */
+.undo-bar{background:#333;color:#fff;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.undo-bar span{font-size:13px}
+.undo-bar .undo-actions{display:flex;align-items:center;gap:8px}
+.undo-btn{background:none;border:none;color:#80c9ff;font-size:13px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:4px}
+.undo-btn:hover{background:rgba(255,255,255,.1)}
+.undo-dismiss{background:none;border:none;color:#aaa;cursor:pointer;display:flex;align-items:center;padding:2px}
+
+/* ─── PROP65 ─── */
+.prop65{background:#fffde7;border:1px solid #f9a825;border-radius:6px;padding:10px 12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+.prop65 .material-icons-round{color:#f9a825;font-size:18px;flex-shrink:0;margin-top:1px}
+.prop65 p{font-size:11.5px;color:#5d4037;line-height:1.5}
+.prop65 a{color:var(--plexus-red)}
+
+/* ─── ORDER SUMMARY ─── */
+.order-summary-card{background:var(--white);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm);position:sticky;top:88px}
+
+/* ─── PROGRESS BAR ─── */
+.progress-banner{background:var(--plexus-red-light);border-radius:8px;padding:12px 14px;margin-bottom:20px}
+.progress-msg{font-size:12px;color:var(--plexus-red);font-weight:600;margin-bottom:8px;text-align:center}
+.progress-track-wrap{position:relative;margin-bottom:6px}
+.progress-track{height:4px;background:var(--plexus-red-mid);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--plexus-red);border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.progress-icons{display:flex;justify-content:space-between;margin-top:6px}
+.prog-icon-item{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.prog-icon-item .material-icons-round{font-size:16px;transition:color .3s}
+.prog-icon-item.achieved .material-icons-round{color:var(--plexus-red)}
+.prog-icon-item:not(.achieved) .material-icons-round{color:var(--plexus-red-mid)}
+.prog-icon-item span.label{font-size:10px;color:var(--text-muted);text-align:center}
+.prog-icon-item.achieved span.label{color:var(--plexus-red);font-weight:600}
+
+/* ─── SUMMARY LINES ─── */
+.summary-title{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;margin-bottom:16px}
+.summary-line{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:8px}
+.summary-line .name{color:var(--text-secondary)}
+.summary-line .val{font-weight:500;color:var(--text-primary)}
+.summary-pv{display:flex;justify-content:space-between;font-size:14px;font-weight:700;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:8px 0 12px}
+.summary-divider{border:none;border-top:1px solid var(--border);margin:12px 0}
+.summary-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.summary-total-label{font-size:15px;font-weight:700}
+.summary-total-val{font-size:20px;font-weight:800;color:var(--text-primary)}
+.vip-savings{text-align:center;font-size:13px;color:var(--success);font-weight:600;margin:10px 0 16px;background:#e8f5e9;padding:8px;border-radius:6px}
+.paypal-section{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.paypal-info{font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;margin-bottom:8px}
+.paypal-info strong{color:var(--paypal-blue)}
+.paypal-info a{color:var(--paypal-gold);cursor:pointer}
+.btn-paypal{background:#009cde;color:#fff;width:100%;padding:13px;border-radius:6px;font-size:15px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.btn-paypal:hover{background:#007ab8}
+.paypal-logo{font-weight:800;font-size:16px}
+
+/* ─── SUGGESTED PRODUCTS ─── */
+.suggested-section{margin-top:32px;grid-column:1/-1}
+.section-title{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;margin-bottom:16px}
+.suggested-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.suggested-card{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);text-align:center;transition:transform .2s,box-shadow .2s}
+.suggested-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.suggested-img{width:80px;height:80px;border-radius:10px;background:linear-gradient(135deg,#f8e8ea,#fce4e8);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.suggested-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.suggested-price{font-size:16px;font-weight:700;color:var(--plexus-red);margin-bottom:12px}
+.suggested-pv{font-size:12px;color:var(--text-muted);display:block;margin-top:-8px;margin-bottom:10px}
+
+/* ─── MODALS ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeOverlay .2s ease}
+@keyframes fadeOverlay{from{opacity:0}to{opacity:1}}
+.modal-overlay.hidden{display:none}
+.modal{background:#fff;border-radius:var(--radius-lg);padding:32px;width:100%;max-width:480px;box-shadow:var(--shadow-lg);animation:modalIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.modal-sm{max-width:380px}
+.modal-title{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:8px}
+.modal-subtitle{font-size:14px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6}
+.modal-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;transition:border-color .2s;margin-bottom:6px}
+.modal-input:focus{outline:none;border-color:var(--plexus-red)}
+.modal-label{font-size:12px;color:var(--text-muted);margin-bottom:12px;display:block}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions .btn{flex:1}
+.modal-note{font-size:11.5px;color:var(--text-muted);margin-top:8px;line-height:1.5}
+.link-display{background:var(--plexus-red-light);border:1px solid var(--plexus-red-mid);border-radius:8px;padding:12px;font-size:13px;font-family:monospace;color:var(--plexus-red);margin:12px 0;word-break:break-all}
+.social-icons-row{display:flex;justify-content:center;gap:16px;margin:16px 0}
+.social-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;font-weight:700;transition:transform .2s,box-shadow .2s;color:#fff;border:none}
+.social-icon:hover{transform:scale(1.1);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.si-fb{background:#1877f2}
+.si-x{background:#000}
+.si-sms{background:#34c759}
+.si-mail{background:#ea4335}
+.si-link{background:#6b7280}
+
+/* ─── MFA MODAL ─── */
+.mfa-choice{display:flex;gap:12px;margin:16px 0}
+.mfa-option{flex:1;padding:14px;border:2px solid var(--border);border-radius:10px;cursor:pointer;text-align:center;transition:all .2s}
+.mfa-option:hover{border-color:var(--plexus-red);background:var(--plexus-red-light)}
+.mfa-option.selected{border-color:var(--plexus-red);background:var(--plexus-red-light)}
+.mfa-option .material-icons-round{font-size:28px;color:var(--plexus-red);display:block;margin-bottom:6px}
+.mfa-option span{font-size:13px;font-weight:600}
+.code-inputs{display:flex;gap:10px;justify-content:center;margin:20px 0}
+.code-input{width:48px;height:56px;border:2px solid var(--border);border-radius:8px;text-align:center;font-size:22px;font-weight:700;font-family:'DM Sans',sans-serif;transition:border-color .2s;outline:none}
+.code-input:focus{border-color:var(--plexus-red);box-shadow:0 0 0 3px rgba(200,16,46,.1)}
+
+/* ─── VIP / SUBSCRIPTION MODALS ─── */
+.fullscreen-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1001;display:flex;align-items:center;justify-content:center;padding:20px}
+.fullscreen-modal.hidden{display:none}
+.confirm-modal{background:#fff;border-radius:var(--radius-lg);padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:var(--shadow-lg)}
+.confirm-modal h2{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:10px}
+.confirm-modal .highlight{font-size:22px;font-weight:800;color:var(--plexus-red)}
+.confirm-modal p{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:24px}
+.confirm-modal .btn-keep{background:#1a1a1a;color:#fff;width:100%;padding:14px;border-radius:8px;font-size:15px;font-weight:700;border:none;cursor:pointer;margin-bottom:12px;transition:background .2s;font-family:'DM Sans',sans-serif}
+.confirm-modal .btn-keep:hover{background:#333}
+.confirm-modal .btn-remove{background:none;border:none;color:var(--text-secondary);font-size:13px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif}
+
+/* ─── CONTINUE SHOPPING BAR ─── */
+.continue-bar{margin-bottom:16px}
+
+/* ─── CHECKOUT PAGE ─── */
+.checkout-container{max-width:1100px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start}
+.checkout-section{background:var(--white);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-num{width:28px;height:28px;background:var(--plexus-red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.section-h2{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.edit-btn{background:none;border:none;color:var(--plexus-red);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.field-full{grid-column:1/-1}
+.field-group{display:flex;flex-direction:column;gap:4px}
+.field-label{font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px}
+.field-input{padding:11px 14px;border:1.5px solid var(--border);border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;transition:border-color .2s;background:#fff}
+.field-input:focus{outline:none;border-color:var(--plexus-red)}
+.field-select{padding:11px 14px;border:1.5px solid var(--border);border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field-select:focus{outline:none;border-color:var(--plexus-red)}
+.saved-display{background:var(--bg);border-radius:7px;padding:14px;font-size:14px;line-height:1.6}
+.saved-display strong{display:block;font-weight:600}
+
+/* ─── ADDRESS VALIDATION ─── */
+.addr-suggestion{background:#fff3e0;border:1px solid #ff9800;border-radius:7px;padding:12px 14px;margin-top:10px;font-size:13px}
+.addr-suggestion .material-icons-round{color:#ff9800;font-size:16px;vertical-align:middle;margin-right:4px}
+
+/* ─── PAYMENT OPTIONS ─── */
+.payment-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.payment-tab{padding:8px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:#fff;font-family:'DM Sans',sans-serif}
+.payment-tab.active{border-color:var(--plexus-red);background:var(--plexus-red-light);color:var(--plexus-red)}
+.card-icons{display:flex;gap:6px;margin-bottom:14px}
+.card-icon{width:36px;height:24px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-muted);background:#f8f8f8}
+.billing-toggle{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:14px}
+.billing-toggle input[type=checkbox]{accent-color:var(--plexus-red);width:16px;height:16px;cursor:pointer}
+
+/* ─── CHECKOUT SUMMARY ─── */
+.checkout-summary{background:var(--white);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm);position:sticky;top:88px}
+
+/* ─── CONFIRMATION PAGE ─── */
+.confirm-container{max-width:900px;margin:0 auto;padding:40px 24px}
+.confirm-hero{text-align:center;padding:40px 24px;background:linear-gradient(135deg,var(--plexus-red-light),#fff);border-radius:var(--radius-lg);margin-bottom:32px;box-shadow:var(--shadow-sm)}
+.confirm-hero .check-circle{width:72px;height:72px;background:var(--plexus-red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.confirm-hero .check-circle .material-icons-round{color:#fff;font-size:36px}
+.confirm-hero h1{font-family:'DM Serif Display',serif;font-size:32px;margin-bottom:8px}
+.confirm-hero p{font-size:15px;color:var(--text-secondary)}
+.confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.confirm-card{background:var(--white);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm)}
+.confirm-card h3{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:12px}
+.status-badge{display:inline-flex;align-items:center;gap:6px;background:#e3f2fd;color:#1565c0;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600}
+.status-badge .dot{width:8px;height:8px;background:#1565c0;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.invite-section{background:var(--white);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+.survey-section{background:linear-gradient(135deg,var(--plexus-red),#a00d24);border-radius:var(--radius);padding:28px;color:#fff;text-align:center;margin-bottom:24px}
+.survey-section h3{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px}
+.survey-section p{font-size:14px;opacity:.9;margin-bottom:16px}
+.btn-white{background:#fff;color:var(--plexus-red);font-weight:700;padding:12px 28px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;transition:all .2s}
+.btn-white:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+
+/* ─── LINKS ─── */
+.policy-links{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;padding:16px 0;font-size:12px}
+.policy-links a{color:var(--text-muted);text-decoration:none;cursor:pointer;transition:color .2s}
+.policy-links a:hover{color:var(--plexus-red)}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;transition:transform .3s ease;white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  .cart-container,.checkout-container{grid-template-columns:1fr}
+  .suggested-grid{grid-template-columns:1fr 1fr}
+  .confirm-grid{grid-template-columns:1fr}
+  .order-summary-card,.checkout-summary{position:static}
+}
+@media(max-width:600px){
+  .nav{display:none}
+  .suggested-grid{grid-template-columns:1fr}
+  .mfa-choice{flex-direction:column}
+  .field-row{grid-template-columns:1fr}
+}
+
+/* ─── PROMO CODE ─── */
+.promo-row{margin-top:12px}
+.promo-toggle{background:none;border:none;color:var(--plexus-red);font-size:13px;font-weight:600;cursor:pointer;padding:0;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px}
+.promo-input-row{display:flex;gap:8px;margin-top:8px}
+.promo-input-row input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif}
+.promo-input-row input:focus{outline:none;border-color:var(--plexus-red)}
+.promo-input-row .btn{padding:9px 14px;font-size:13px}
+
+/* ─── ONE CLICK CHECKOUT ─── */
+.one-click-btn{background:var(--white);color:var(--text-primary);border:2px solid var(--text-primary);font-size:13px}
+.one-click-btn:hover{background:var(--text-primary);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header class="site-header">
+  <div class="header-banner">Founded in gut health. Experts in microbiome. <a>Learn More</a></div>
+  <div class="header-inner">
+    <div class="logo">plexus<span>®</span></div>
+    <nav class="nav">
+      <a>Shop</a><a>Experience Plexus</a><a>About</a><a>Resources</a>
+    </nav>
+    <div class="header-actions">
+      <a><span class="material-icons-round" style="font-size:18px">person_outline</span> Login</a>
+      <a><span class="material-icons-round" style="font-size:18px">help_outline</span> Help</a>
+      <a id="cartNavBtn" onclick="showPage('cart')"><span class="material-icons-round" style="font-size:20px">shopping_cart</span> Cart <span class="cart-badge" id="cartBadge">2</span></a>
+      <a>🇺🇸 US (EN)</a>
+    </div>
+  </div>
+</header>
+
+<!-- ─── CART PAGE ─── -->
+<div class="page active" id="page-cart">
+  <div class="cart-container">
+    <!-- LEFT: Cart Items -->
+    <div>
+      <div class="continue-bar">
+        <button class="btn btn-ghost" onclick="showToast('Continue shopping – browse our products!')"><span class="material-icons-round" style="font-size:16px">arrow_back</span> Continue Shopping</button>
+      </div>
+      <div class="cart-title-row">
+        <div class="cart-title">Your Cart <span id="cartTitleMeta"></span></div>
+        <div class="cart-actions">
+          <button class="btn btn-outline" onclick="openModal('shareModal')"><span class="material-icons-round" style="font-size:16px">share</span> Share Cart</button>
+          <button class="btn one-click-btn" onclick="openModal('mfaModal')"><span class="material-icons-round" style="font-size:16px">bolt</span> One-Click Checkout</button>
+        </div>
+      </div>
+
+      <!-- VIP Membership Banner -->
+      <div id="vipBanner" class="vip-banner">
+        <div class="vip-banner-left">
+          <span class="material-icons-round vip-icon">workspace_premium</span>
+          <div>
+            <h3>🌟 VIP Membership</h3>
+            <p>Become a VIP member for exclusive savings and rewards plus convenient monthly delivery. ($1.00 fee)</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addMembership()" id="vipAddBtn">ADD TO CART</button>
+      </div>
+
+      <!-- Membership in Cart -->
+      <div id="membershipCard" class="cart-item" style="display:none">
+        <div class="item-header">
+          <div class="item-img-placeholder">🌟</div>
+          <div class="item-info">
+            <div class="item-name">Plexus Annual Membership</div>
+            <div class="item-subtitle">Your Plexus Annual Membership will automatically renew one year from today's date.</div>
+          </div>
+          <div class="item-price-col">
+            <div class="item-price">$1.00</div>
+          </div>
+          <button class="item-trash" onclick="tryRemoveMembership()"><span class="material-icons-round">delete</span></button>
+        </div>
+      </div>
+
+      <!-- Undo bars container -->
+      <div id="undoContainer"></div>
+
+      <!-- Pink Drink Item (dropdowns) -->
+      <div class="cart-item" id="pinkDrinkCard">
+        <div class="item-header">
+          <div class="item-img-placeholder">🩷</div>
+          <div class="item-info">
+            <div class="item-name">Plexus Slim® Hunger Control</div>
+            <div class="item-subtitle">30 Packets</div>
+            <button class="selections-toggle open" onclick="toggleSelections('sel1',this)">
+              <span class="material-icons-round">arrow_drop_up</span> Your Selections
+            </button>
+            <div class="selections-body" id="sel1">
+              <div class="selections-grid">
+                <select class="sel-dropdown">
+                  <option>Slim Hunger Control – Sweet Tea</option>
+                  <option>Slim Hunger Control – Lemonade</option>
+                  <option>Slim Hunger Control – Watermelon</option>
+                </select>
+              </div>
+              <div class="selections-grid">
+                <select class="sel-dropdown">
+                  <option>Active – Pineapple Lemongrass</option>
+                  <option>Active – Mango Passion</option>
+                  <option>Active – Berry Blast</option>
+                </select>
+              </div>
+              <div class="selections-grid">
+                <select class="sel-dropdown" style="max-width:200px">
+                  <option>Active – Starfruit Guava</option>
+                  <option>Active – Citrus Burst</option>
+                </select>
+                <select class="sel-dropdown" style="max-width:120px">
+                  <option>Immune</option>
+                  <option>Immune+</option>
+                </select>
+                <select class="sel-dropdown" style="max-width:100px">
+                  <option>Edge</option>
+                  <option>Edge+</option>
+                </select>
+              </div>
+              <div class="selections-grid">
+                <select class="sel-dropdown" style="max-width:160px">
+                  <option>Meta Burn</option>
+                  <option>Meta Burn XS</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="item-price-col">
+            <div class="item-price" id="pd1Price">$79.00</div>
+            <div class="item-pv" id="pd1PV">72 PV</div>
+          </div>
+          <button class="item-trash" onclick="tryRemoveItem('pinkDrinkCard','Pink Drink',1)"><span class="material-icons-round">delete</span></button>
+        </div>
+        <div class="qty-row" style="margin-top:12px">
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeQty('qty1',-1)">−</button>
+            <span class="qty-val" id="qty1">1</span>
+            <button class="qty-btn" onclick="changeQty('qty1',1)">+</button>
+          </div>
+        </div>
+        <div class="sub-row">
+          <div class="checkbox-custom" id="subChk1" onclick="toggleSubscription(1)"><span class="material-icons-round">check</span></div>
+          <div>
+            <div class="sub-label">Subscription Added!</div>
+            <div class="sub-date" id="subDate1">Will ship and charge on March 10, 2026 and every month until cancelled.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pink Drink 2 (swatches) -->
+      <div class="cart-item" id="pinkDrink2Card">
+        <div class="item-header">
+          <div class="item-img-placeholder">🩷</div>
+          <div class="item-info">
+            <div class="item-name">Plexus Slim® Hunger Control</div>
+            <div class="item-subtitle">30 Packets</div>
+            <button class="selections-toggle open" onclick="toggleSelections('sel2',this)">
+              <span class="material-icons-round">arrow_drop_up</span> Flavor: <strong id="flavorLabel">Sweet Tea</strong>
+            </button>
+            <div class="selections-body" id="sel2">
+              <div class="swatches-section">
+                <div class="swatches-group">
+                  <div class="swatches-group-label">Classic</div>
+                  <div class="swatches-row">
+                    <div class="swatch active" style="background:radial-gradient(circle at 40% 35%,#e8a0b0,#c8102e)" title="Sweet Tea" onclick="selectSwatch(this,'Sweet Tea')"></div>
+                    <div class="swatch" style="background:radial-gradient(circle at 40% 35%,#f5e89a,#e0c840)" title="Lemonade" onclick="selectSwatch(this,'Lemonade')"></div>
+                    <div class="swatch" style="background:radial-gradient(circle at 40% 35%,#f9a0a8,#e85060)" title="Watermelon" onclick="selectSwatch(this,'Watermelon')"></div>
+                  </div>
+                </div>
+                <div class="swatches-group" style="margin-top:10px">
+                  <div class="swatches-group-label">Limited Edition</div>
+                  <div class="swatches-row">
+                    <div class="swatch" style="background:radial-gradient(circle at 40% 35%,#c060b0,#801880)" title="Açaí Berry" onclick="selectSwatch(this,'Açaí Berry')"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="item-price-col">
+            <div class="item-price" id="pd2Price">$79.00</div>
+            <div class="item-pv" id="pd2PV">72 PV</div>
+          </div>
+          <button class="item-trash" onclick="tryRemoveItem('pinkDrink2Card','Pink Drink (2)',2)"><span class="material-icons-round">delete</span></button>
+        </div>
+        <div class="qty-row" style="margin-top:12px">
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeQty('qty2',-1)">−</button>
+            <span class="qty-val" id="qty2">1</span>
+            <button class="qty-btn" onclick="changeQty('qty2',1)">+</button>
+          </div>
+        </div>
+        <div class="sub-row">
+          <div class="checkbox-custom" id="subChk2" onclick="toggleSubscription(2)"><span class="material-icons-round">check</span></div>
+          <div>
+            <div class="sub-label">Subscription Added!</div>
+            <div class="sub-date" id="subDate2">Will ship and charge on March 10, 2026 and every month until cancelled.</div>
+          </div>
+        </div>
+        <div class="prop65">
+          <span class="material-icons-round">warning_amber</span>
+          <p><strong>WARNING</strong><br>This product can expose you to lead, which is known to the State of California to cause birth defects or other reproductive harm. For more information go to <a href="https://www.P65Warnings.ca.gov" target="_blank">www.P65Warnings.ca.gov</a>.</p>
+        </div>
+      </div>
+
+      <!-- Suggested Products -->
+      <div class="suggested-section">
+        <div class="section-title">You May Also Like</div>
+        <div class="suggested-grid" id="suggestedGrid">
+          <div class="suggested-card">
+            <div class="suggested-img">💊</div>
+            <div class="suggested-name">Plexus ProBio 5</div>
+            <div class="suggested-price">$34.95</div>
+            <span class="suggested-pv">34 PV</span>
+            <button class="btn btn-primary btn-full" onclick="addSuggested('Plexus ProBio 5',34.95,34,'💊')">Add to Cart</button>
+          </div>
+          <div class="suggested-card">
+            <div class="suggested-img">🌿</div>
+            <div class="suggested-name">Plexus Bio Cleanse</div>
+            <div class="suggested-price">$39.95</div>
+            <span class="suggested-pv">39 PV</span>
+            <button class="btn btn-primary btn-full" onclick="addSuggested('Plexus Bio Cleanse',39.95,39,'🌿')">Add to Cart</button>
+          </div>
+          <div class="suggested-card">
+            <div class="suggested-img">🧡</div>
+            <div class="suggested-name">Plexus XFactor Plus</div>
+            <div class="suggested-price">$49.95</div>
+            <span class="suggested-pv">49 PV</span>
+            <button class="btn btn-primary btn-full" onclick="addSuggested('Plexus XFactor Plus',49.95,49,'🧡')">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Order Summary -->
+    <div>
+      <div class="order-summary-card">
+        <!-- Progress -->
+        <div class="progress-banner">
+          <div class="progress-msg" id="progressMsg">add $3.98 more for $1 Membership!</div>
+          <div class="progress-track-wrap">
+            <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          </div>
+          <div class="progress-icons">
+            <div class="prog-icon-item" id="prog0">
+              <span class="material-icons-round">workspace_premium</span>
+              <span class="label">$35<br>$1 Membership</span>
+            </div>
+            <div class="prog-icon-item" id="prog1">
+              <span class="material-icons-round">local_shipping</span>
+              <span class="label">$75<br>Free Shipping</span>
+            </div>
+            <div class="prog-icon-item" id="prog2">
+              <span class="material-icons-round">card_giftcard</span>
+              <span class="label">$150<br>Free Gift!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-title">Order Summary</div>
+
+        <!-- Product lines -->
+        <div id="summaryLines"></div>
+
+        <div class="summary-pv"><span>PV Total</span><span id="summaryPV">0 PV</span></div>
+
+        <div class="summary-line"><span class="name" id="subtotalLabel">Subtotal (0 Items)</span><span class="val" id="summarySubtotal">$0.00</span></div>
+        <div class="summary-line"><span class="name">Shipping</span><span class="val" id="summaryShipping">$9.99</span></div>
+        <div class="summary-line"><span class="name">Tax</span><span class="val">$—</span></div>
+        <hr class="summary-divider"/>
+        <div class="summary-total-row">
+          <span class="summary-total-label">Estimated Order Total</span>
+          <span class="summary-total-val" id="summaryTotal">$0.00</span>
+        </div>
+        <div class="vip-savings" id="vipSavings">You're saving $0.00 as a VIP Member!</div>
+
+        <div class="promo-row">
+          <button class="promo-toggle" onclick="togglePromo()"><span class="material-icons-round" style="font-size:15px">add</span> Add promo code?</button>
+          <div id="promoArea" style="display:none">
+            <div class="promo-input-row">
+              <input type="text" placeholder="Enter promo code" id="promoInput"/>
+              <button class="btn btn-primary" onclick="applyPromo()">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full btn-lg" style="margin-top:16px" onclick="showPage('checkout')">CHECKOUT</button>
+
+        <div class="paypal-section">
+          <div class="paypal-info"><strong>PayPal</strong> Pay in 4 interest-free payments of $32.64. <a>Learn more</a></div>
+          <button class="btn-paypal"><span class="paypal-logo">PayPal</span> Buy Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CHECKOUT PAGE ─── -->
+<div class="page" id="page-checkout">
+  <div class="checkout-container">
+    <div>
+      <div class="checkout-section">
+        <div class="section-header">
+          <div class="section-h2"><div class="section-num">1</div> Shipping Information</div>
+          <button class="edit-btn" id="shippingEditBtn" onclick="toggleEdit('shipping')"><span class="material-icons-round" style="font-size:15px">edit</span> Edit</button>
+        </div>
+        <!-- Shipping form -->
+        <div id="shippingForm">
+          <div class="field-row">
+            <div class="field-group"><label class="field-label">First Name</label><input class="field-input" type="text" value="Jane" id="sfirst"/></div>
+            <div class="field-group"><label class="field-label">Last Name</label><input class="field-input" type="text" value="Doe" id="slast"/></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group field-full"><label class="field-label">Address Line 1</label><input class="field-input" type="text" value="123 Main Street" id="saddr1" oninput="validateAddress()"/></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group field-full"><label class="field-label">Address Line 2</label><input class="field-input" type="text" placeholder="Apt, suite, etc." id="saddr2"/></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label class="field-label">City</label><input class="field-input" type="text" value="Phoenix" id="scity"/></div>
+            <div class="field-group"><label class="field-label">State</label><select class="field-input field-select" id="sstate"><option value="AZ" selected>AZ</option><option>CA</option><option>TX</option><option>FL</option><option>NY</option></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label class="field-label">ZIP Code</label><input class="field-input" type="text" value="85001" id="szip" maxlength="5"/></div>
+            <div class="field-group"><label class="field-label">Phone</label><input class="field-input" type="tel" value="(602) 555-0100" id="sphone"/></div>
+          </div>
+          <div id="addrValidMsg"></div>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <button class="btn btn-primary" onclick="saveShipping()">Save & Continue</button>
+            <button class="btn btn-outline" onclick="cancelEdit('shipping')">Cancel</button>
+          </div>
+        </div>
+        <div id="shippingDisplay" style="display:none">
+          <div class="saved-display">
+            <strong id="shippingName">Jane Doe</strong>
+            <span id="shippingAddr">123 Main Street, Phoenix, AZ 85001</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment -->
+      <div class="checkout-section">
+        <div class="section-header">
+          <div class="section-h2"><div class="section-num">2</div> Payment Method</div>
+          <button class="edit-btn" id="paymentEditBtn" onclick="toggleEdit('payment')"><span class="material-icons-round" style="font-size:15px">edit</span> Edit</button>
+        </div>
+        <div id="paymentForm">
+          <div class="payment-tabs">
+            <button class="payment-tab active" onclick="selectPayment(this,'card')"><span class="material-icons-round" style="font-size:15px;vertical-align:middle">credit_card</span> Credit/Debit</button>
+            <button class="payment-tab" onclick="selectPayment(this,'venmo')">Venmo</button>
+            <button class="payment-tab" onclick="selectPayment(this,'paypal')">PayPal</button>
+            <button class="payment-tab" onclick="selectPayment(this,'voucher')"><span class="material-icons-round" style="font-size:15px;vertical-align:middle">confirmation_number</span> Voucher</button>
+          </div>
+          <div id="payCardForm">
+            <div class="card-icons">
+              <div class="card-icon">VISA</div>
+              <div class="card-icon">MC</div>
+              <div class="card-icon">AMEX</div>
+              <div class="card-icon">DISC</div>
+            </div>
+            <div class="field-row">
+              <div class="field-group field-full"><label class="field-label">Card Number</label><input class="field-input" type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"/></div>
+            </div>
+            <div class="field-row">
+              <div class="field-group"><label class="field-label">Expiration</label><input class="field-input" type="text" placeholder="MM/YY" maxlength="5"/></div>
+              <div class="field-group"><label class="field-label">CVV</label><input class="field-input" type="text" placeholder="•••" maxlength="4"/></div>
+            </div>
+            <div class="field-row">
+              <div class="field-group field-full"><label class="field-label">Name on Card</label><input class="field-input" type="text" placeholder="Jane Doe"/></div>
+            </div>
+            <label class="billing-toggle"><input type="checkbox" checked id="billSameCheck" onchange="toggleBilling()"/> Billing address same as shipping</label>
+            <div id="billingForm" style="display:none;margin-top:16px">
+              <div class="field-row">
+                <div class="field-group field-full"><label class="field-label">Billing Address</label><input class="field-input" type="text" placeholder="Street address"/></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label">City</label><input class="field-input" type="text" placeholder="City"/></div>
+                <div class="field-group"><label class="field-label">State</label><select class="field-input field-select"><option>AZ</option><option>CA</option><option>TX</option></select></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label class="field-label">ZIP</label><input class="field-input" type="text" maxlength="5" placeholder="85001"/></div>
+              </div>
+            </div>
+          </div>
+          <div id="payVenmoForm" style="display:none">
+            <p style="color:var(--text-secondary);font-size:14px;margin:12px 0">You will be redirected to Venmo to complete your payment securely.</p>
+            <button class="btn btn-outline" style="border-color:#008CFF;color:#008CFF"><span style="font-weight:800">V</span> Connect Venmo</button>
+          </div>
+          <div id="payPaypalForm" style="display:none">
+            <p style="color:var(--text-secondary);font-size:14px;margin:12px 0">You will be redirected to PayPal to complete your payment securely.</p>
+            <button class="btn-paypal" style="width:200px;padding:12px;border-radius:6px;font-size:14px;font-weight:700;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px"><span class="paypal-logo" style="font-size:14px">PayPal</span> Connect</button>
+          </div>
+          <div id="payVoucherForm" style="display:none">
+            <label class="field-label" style="display:block;margin-bottom:6px">Voucher Code (numbers only)</label>
+            <input class="field-input" type="text" placeholder="Enter voucher number" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="20" style="max-width:300px"/>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-primary" onclick="savePayment()">Save & Continue</button>
+            <button class="btn btn-outline" onclick="cancelEdit('payment')">Cancel</button>
+          </div>
+        </div>
+        <div id="paymentDisplay" style="display:none">
+          <div class="saved-display"><strong>Credit / Debit Card</strong><span>•••• •••• •••• 3456</span></div>
+        </div>
+      </div>
+
+      <!-- Review -->
+      <div class="checkout-section">
+        <div class="section-header">
+          <div class="section-h2"><div class="section-num">3</div> Review Order</div>
+        </div>
+        <div id="reviewLines" style="margin-bottom:16px"></div>
+        <button class="btn btn-primary btn-lg btn-full" onclick="placeOrder()">Place Order</button>
+        <div class="policy-links" style="margin-top:12px">
+          <a>Refund Policy</a><a>Shipping</a><a>Privacy Policy</a><a>Terms of Service</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Summary -->
+    <div>
+      <div class="checkout-summary">
+        <div class="summary-title">Order Summary</div>
+        <div id="checkoutSummaryLines"></div>
+        <div class="summary-pv"><span>PV Total</span><span id="checkoutPV">0 PV</span></div>
+        <div class="summary-line"><span class="name" id="checkoutSubLabel">Subtotal</span><span class="val" id="checkoutSubtotal">$0.00</span></div>
+        <div class="summary-line"><span class="name">Shipping</span><span class="val" id="checkoutShipping">$9.99</span></div>
+        <div class="summary-line"><span class="name">Tax</span><span class="val">$—</span></div>
+        <hr class="summary-divider"/>
+        <div class="summary-total-row">
+          <span class="summary-total-label">Order Total</span>
+          <span class="summary-total-val" id="checkoutTotal">$0.00</span>
+        </div>
+        <div class="vip-savings" id="checkoutSavings" style="margin-top:10px"></div>
+        <!-- Rewards earned -->
+        <div id="checkoutRewards" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONFIRMATION PAGE ─── -->
+<div class="page" id="page-confirmation">
+  <div class="confirm-container">
+    <div class="confirm-hero">
+      <div class="check-circle"><span class="material-icons-round">check</span></div>
+      <h1>Thank You, Jane! 🎉</h1>
+      <p>Your order has been placed and is being processed with love.<br>Estimated delivery: <strong>March 11–14, 2026</strong></p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-lg" onclick="alert('Redirecting to My Account...')"><span class="material-icons-round" style="font-size:18px">account_circle</span> Go to My Account</button>
+        <button class="btn btn-outline btn-lg" onclick="openModal('shareModal')"><span class="material-icons-round" style="font-size:18px">share</span> Share Your Cart</button>
+      </div>
+    </div>
+
+    <div class="confirm-grid">
+      <div class="confirm-card">
+        <h3>Order Status</h3>
+        <div class="status-badge"><div class="dot"></div> Being Processed</div>
+        <div style="margin-top:12px;font-size:14px;color:var(--text-secondary)">
+          <div style="margin-bottom:6px"><strong>Order #</strong> PLX-2026-88421</div>
+          <div><strong>Placed:</strong> March 6, 2026</div>
+        </div>
+      </div>
+      <div class="confirm-card">
+        <h3>Shipping To</h3>
+        <div style="font-size:14px;line-height:1.8">
+          <strong>Jane Doe</strong><br>
+          123 Main Street<br>
+          Phoenix, AZ 85001<br>
+          <span style="color:var(--text-muted)">(602) 555-0100</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Order Summary -->
+    <div class="confirm-card" style="margin-bottom:24px">
+      <h3>Order Summary</h3>
+      <div id="confirmSummaryLines"></div>
+      <div class="summary-pv"><span>PV Total</span><span id="confirmPV">0 PV</span></div>
+      <div class="summary-line"><span class="name">Subtotal</span><span class="val" id="confirmSubtotal">$0.00</span></div>
+      <div class="summary-line"><span class="name">Shipping</span><span class="val" id="confirmShipping">$9.99</span></div>
+      <div class="summary-line"><span class="name">Tax</span><span class="val">$—</span></div>
+      <hr class="summary-divider"/>
+      <div class="summary-total-row"><span class="summary-total-label">Total Charged</span><span class="summary-total-val" id="confirmTotal">$0.00</span></div>
+    </div>
+
+    <!-- Invite -->
+    <div class="invite-section">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">🎁 Invite a Friend</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">Share Plexus and earn rewards together!</p>
+      <div style="display:flex;gap:8px">
+        <input class="field-input" type="email" placeholder="friend@email.com" id="inviteEmail" style="flex:1"/>
+        <button class="btn btn-primary" onclick="sendInvite()">Send Invite</button>
+      </div>
+    </div>
+
+    <!-- Survey -->
+    <div class="survey-section">
+      <h3>We Care About Your Experience</h3>
+      <p>Help us improve by taking a one-minute survey about your shopping experience today.</p>
+      <button class="btn-white" onclick="showToast('Survey opened – thank you! 🙏')">Take the Survey</button>
+    </div>
+
+    <!-- Suggested products on confirmation -->
+    <div class="section-title" style="margin-top:8px">Complete Your Health Journey</div>
+    <div class="suggested-grid">
+      <div class="suggested-card">
+        <div class="suggested-img">💊</div>
+        <div class="suggested-name">Plexus ProBio 5</div>
+        <div class="suggested-price">$34.95</div>
+        <span class="suggested-pv">34 PV</span>
+        <button class="btn btn-primary btn-full" onclick="showToast('ProBio 5 added to cart! 🛒')">Add to Cart</button>
+      </div>
+      <div class="suggested-card">
+        <div class="suggested-img">🌿</div>
+        <div class="suggested-name">Plexus Bio Cleanse</div>
+        <div class="suggested-price">$39.95</div>
+        <span class="suggested-pv">39 PV</span>
+        <button class="btn btn-primary btn-full" onclick="showToast('Bio Cleanse added to cart! 🛒')">Add to Cart</button>
+      </div>
+      <div class="suggested-card">
+        <div class="suggested-img">🧡</div>
+        <div class="suggested-name">Plexus XFactor Plus</div>
+        <div class="suggested-price">$49.95</div>
+        <span class="suggested-pv">49 PV</span>
+        <button class="btn btn-primary btn-full" onclick="showToast('XFactor Plus added to cart! 🛒')">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODALS ─── -->
+
+<!-- Share Cart Modal -->
+<div class="modal-overlay hidden" id="shareModal">
+  <div class="modal">
+    <div id="shareModalContent">
+      <h2 class="modal-title">Share Your Cart</h2>
+      <p class="modal-subtitle">*VIP enrollment included. Excluded for existing members.</p>
+      <div style="margin-bottom:12px">
+        <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px">Add promo code?</label>
+        <input type="text" class="modal-input" placeholder="Enter promo code" id="sharePromoInput"/>
+        <span class="modal-note">Optional – promotional discounts will be included with your shared cart link.</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="generateLink()">Generate Link</button>
+        <button class="btn btn-outline" onclick="closeModal('shareModal')">Cancel</button>
+      </div>
+    </div>
+    <div id="shareLinkContent" style="display:none">
+      <div style="text-align:center;margin-bottom:12px">
+        <span class="material-icons-round" style="font-size:40px;color:var(--success)">check_circle</span>
+        <h2 class="modal-title" style="margin-top:8px">Link Created!</h2>
+      </div>
+      <div class="link-display">https://plexus.com/cart/share?id=PLX-XC8821K&promo=SAVE10</div>
+      <p class="modal-note" style="margin-bottom:12px">*Promotional codes included that expire prior to user loading cart will not be included.</p>
+      <div class="social-icons-row">
+        <button class="social-icon si-fb" title="Facebook" onclick="showToast('Shared to Facebook!')"><span style="font-weight:900;font-size:20px">f</span></button>
+        <button class="social-icon si-x" title="X / Twitter" onclick="showToast('Shared to X!')"><span style="font-weight:900;font-size:16px">𝕏</span></button>
+        <button class="social-icon si-sms" title="Text Message" onclick="showToast('SMS opened!')"><span class="material-icons-round">sms</span></button>
+        <button class="social-icon si-mail" title="Email" onclick="showToast('Email client opened!')"><span class="material-icons-round">mail</span></button>
+        <button class="social-icon si-link" title="Copy Link" onclick="copyLink()"><span class="material-icons-round">link</span></button>
+      </div>
+      <button class="btn btn-dark btn-full" onclick="closeModal('shareModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- MFA Modal -->
+<div class="modal-overlay hidden" id="mfaModal">
+  <div class="modal modal-sm">
+    <div id="mfaStep1">
+      <h2 class="modal-title">One-Click Checkout</h2>
+      <p class="modal-subtitle">Choose where to send your verification code:</p>
+      <div class="mfa-choice">
+        <div class="mfa-option" id="mfaEmail" onclick="selectMfa('email')">
+          <span class="material-icons-round">email</span>
+          <span>Email</span>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">j***@gmail.com</div>
+        </div>
+        <div class="mfa-option" id="mfaSms" onclick="selectMfa('sms')">
+          <span class="material-icons-round">smartphone</span>
+          <span>SMS</span>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">•••-•••-0100</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="sendMfaCode()">Send Code</button>
+        <button class="btn btn-outline" onclick="closeModal('mfaModal')">Cancel</button>
+      </div>
+    </div>
+    <div id="mfaStep2" style="display:none">
+      <h2 class="modal-title">Enter Your Code</h2>
+      <p class="modal-subtitle" id="mfaCodeMsg">We sent a 5-digit code to your email.</p>
+      <div class="code-inputs">
+        <input class="code-input" type="text" maxlength="1" oninput="moveToNext(this,0)" id="ci0"/>
+        <input class="code-input" type="text" maxlength="1" oninput="moveToNext(this,1)" id="ci1"/>
+        <input class="code-input" type="text" maxlength="1" oninput="moveToNext(this,2)" id="ci2"/>
+        <input class="code-input" type="text" maxlength="1" oninput="moveToNext(this,3)" id="ci3"/>
+        <input class="code-input" type="text" maxlength="1" oninput="moveToNext(this,4)" id="ci4"/>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);text-align:center">Enter any 5 digits to verify</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary btn-full" onclick="verifyCode()">Verify & Place Order</button>
+      </div>
+      <button style="display:block;margin:8px auto 0;background:none;border:none;color:var(--plexus-red);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="showMfaStep(1)">← Back</button>
+    </div>
+    <div id="mfaStep3" style="display:none;text-align:center">
+      <span class="material-icons-round" style="font-size:48px;color:var(--success)">verified</span>
+      <h2 class="modal-title" style="margin-top:8px">Verified!</h2>
+      <p class="modal-subtitle">Your identity has been confirmed. Placing your order now…</p>
+      <div style="width:40px;height:4px;background:var(--plexus-red);border-radius:4px;margin:0 auto;animation:loadBar 1.5s ease forwards"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIP Remove Modal -->
+<div class="fullscreen-modal hidden" id="vipModal">
+  <div class="confirm-modal">
+    <h2>Are you sure?</h2>
+    <p>You'll lose <span class="highlight">$37.00</span> in savings</p>
+    <p>VIP Members receive <strong>25% off</strong> every order. Keep your membership in your cart to earn member exclusive discounts.</p>
+    <button class="btn-keep" onclick="keepMembership()">Keep VIP Benefits</button>
+    <button class="btn-remove" onclick="confirmRemoveMembership()">Remove Membership & Benefits</button>
+  </div>
+</div>
+
+<!-- Subscription Remove Modal -->
+<div class="fullscreen-modal hidden" id="subModal">
+  <div class="confirm-modal">
+    <h2>Are you sure?</h2>
+    <p>You'll lose <strong>monthly subscription.</strong></p>
+    <p>Removing your Subscription will automatically revert item to a one time purchase only.</p>
+    <button class="btn-keep" onclick="keepSubscription()">Keep Subscription</button>
+    <button class="btn-remove" onclick="confirmRemoveSub()">Remove Subscription</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<style>
+@keyframes loadBar{from{width:0;opacity:1}to{width:200px;opacity:0}}
+</style>
+
+<script>
+// ─── STATE ───
+const state = {
+  hasMembership: false,
+  membershipRemoved: false,
+  items: [
+    {id:'pinkDrink',name:'Plexus Slim® Hunger Control',price:79,pv:72,qty:1,sub:true,removed:false,emoji:'🩷'},
+    {id:'pinkDrink2',name:'Plexus Slim® Hunger Control',price:79,pv:72,qty:1,sub:true,removed:false,emoji:'🩷'},
+  ],
+  suggestedAdded:[],
+  currentSubTarget:null,
+  currentRemoveTarget:null,
+  mfaMethod:null,
+  shippingSaved:false,
+  paymentSaved:false,
+};
+
+// ─── PAGE NAV ───
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  window.scrollTo(0,0);
+  if(page==='checkout') renderCheckout();
+  if(page==='confirmation') renderConfirmation();
+}
+
+// ─── MODAL ───
+function openModal(id){
+  document.getElementById(id).classList.remove('hidden');
+  if(id==='shareModal'){
+    document.getElementById('shareModalContent').style.display='';
+    document.getElementById('shareLinkContent').style.display='none';
+  }
+}
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+
+// ─── MEMBERSHIP ───
+function addMembership(){
+  state.hasMembership=true;
+  state.membershipRemoved=false;
+  document.getElementById('vipBanner').style.display='none';
+  document.getElementById('membershipCard').style.display='';
+  updateSummary();
+  showToast('VIP Membership added! 🌟');
+}
+function tryRemoveMembership(){
+  document.getElementById('vipModal').classList.remove('hidden');
+}
+function keepMembership(){
+  document.getElementById('vipModal').classList.add('hidden');
+}
+function confirmRemoveMembership(){
+  document.getElementById('vipModal').classList.add('hidden');
+  state.hasMembership=false;
+  state.membershipRemoved=true;
+  document.getElementById('membershipCard').style.display='none';
+  document.getElementById('vipBanner').style.display='';
+  updateSummary();
+  showToast('Membership removed. Prices updated.');
+}
+
+// ─── ITEMS ───
+function tryRemoveItem(cardId,name,idx){
+  const card=document.getElementById(cardId);
+  const item=state.items.find(i=>i.id===(idx===1?'pinkDrink':'pinkDrink2'));
+  if(!item||item.removed)return;
+  card.classList.add('removing');
+  setTimeout(()=>{
+    card.style.display='none';
+    card.classList.remove('removing');
+    item.removed=true;
+    updateSummary();
+    showUndoBar(cardId,name,item);
+  },300);
+}
+function showUndoBar(cardId,name,item){
+  const container=document.getElementById('undoContainer');
+  const barId='undo_'+cardId;
+  const existing=document.getElementById(barId);
+  if(existing) existing.remove();
+  const bar=document.createElement('div');
+  bar.className='undo-bar';
+  bar.id=barId;
+  bar.innerHTML=`<span>${name} removed</span><div class="undo-actions"><button class="undo-btn" onclick="undoRemove('${cardId}','${barId}')">UNDO</button><button class="undo-dismiss" onclick="dismissUndo('${cardId}','${barId}')"><span class="material-icons-round" style="font-size:16px;color:#aaa">close</span></button></div>`;
+  container.appendChild(bar);
+}
+function undoRemove(cardId,barId){
+  const card=document.getElementById(cardId);
+  const item=state.items.find(i=>i.id===(cardId==='pinkDrinkCard'?'pinkDrink':'pinkDrink2'));
+  item.removed=false;
+  card.style.display='';
+  document.getElementById(barId)?.remove();
+  updateSummary();
+}
+function dismissUndo(cardId,barId){
+  document.getElementById(barId)?.remove();
+}
+function addSuggested(name,price,pv,emoji){
+  if(state.suggestedAdded.find(i=>i.name===name)){showToast(name+' is already in your cart!');return;}
+  state.suggestedAdded.push({name,price,pv,removed:false,emoji});
+  updateSummary();
+  showToast(name+' added to cart! 🛒');
+}
+
+// ─── QTY ───
+function changeQty(id,delta){
+  const el=document.getElementById(id);
+  let v=parseInt(el.textContent)+delta;
+  if(v<1)v=1;
+  el.textContent=v;
+  const itemKey=id==='qty1'?'pinkDrink':'pinkDrink2';
+  const item=state.items.find(i=>i.id===itemKey);
+  if(item) item.qty=v;
+  updateSummary();
+}
+
+// ─── SUBSCRIPTION ───
+function toggleSubscription(idx){
+  const item=state.items.find(i=>i.id===(idx===1?'pinkDrink':'pinkDrink2'));
+  if(!item)return;
+  if(item.sub){
+    state.currentSubTarget=idx;
+    document.getElementById('subModal').classList.remove('hidden');
+  }else{
+    item.sub=true;
+    const chk=document.getElementById('subChk'+idx);
+    chk.classList.remove('unchecked');
+    document.getElementById('subDate'+idx).style.display='';
+    updateSummary();
+  }
+}
+function keepSubscription(){document.getElementById('subModal').classList.add('hidden')}
+function confirmRemoveSub(){
+  const idx=state.currentSubTarget;
+  const item=state.items.find(i=>i.id===(idx===1?'pinkDrink':'pinkDrink2'));
+  if(item) item.sub=false;
+  document.getElementById('subChk'+idx).classList.add('unchecked');
+  document.getElementById('subChk'+idx).innerHTML='';
+  document.getElementById('subDate'+idx).style.display='none';
+  document.getElementById('subModal').classList.add('hidden');
+  updateSummary();
+}
+
+// ─── SWATCH ───
+function selectSwatch(el,flavor){
+  el.closest('.swatches-section').querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('flavorLabel').textContent=flavor;
+}
+
+// ─── TOGGLE SELECTIONS ───
+function toggleSelections(id,btn){
+  const body=document.getElementById(id);
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'';
+  btn.classList.toggle('open',!open);
+  btn.querySelector('.material-icons-round').textContent=open?'arrow_drop_down':'arrow_drop_up';
+}
+
+// ─── PROMO ───
+function togglePromo(){
+  const a=document.getElementById('promoArea');
+  a.style.display=a.style.display==='none'?'':'none';
+}
+function applyPromo(){
+  const v=document.getElementById('promoInput').value.trim();
+  if(v) showToast('Promo code "'+v+'" applied! 🎉');
+  else showToast('Please enter a promo code.');
+}
+
+// ─── SUMMARY UPDATE ───
+function updateSummary(){
+  const vip=state.hasMembership;
+  const mult=(!vip&&state.membershipRemoved)?2:1;
+
+  let lines=[];
+  if(state.hasMembership) lines.push({name:'Plexus Annual Membership',price:1,pv:0,qty:1});
+
+  state.items.forEach(item=>{
+    if(!item.removed){
+      lines.push({name:item.name,price:item.price*mult,pv:vip?item.pv:0,qty:item.qty});
+    }
+  });
+  state.suggestedAdded.forEach(item=>{
+    if(!item.removed){
+      lines.push({name:item.name,price:item.price*mult,pv:vip?item.pv:0,qty:1});
+    }
+  });
+
+  const itemCount=lines.length;
+  let subtotal=lines.reduce((s,l)=>s+l.price*l.qty,0);
+  let totalPV=lines.reduce((s,l)=>s+l.pv*l.qty,0);
+
+  // Progress
+  const progress=Math.min((subtotal/150)*100,100);
+  document.getElementById('progressFill').style.width=progress+'%';
+  const milestones=[{t:35,id:'prog0'},{t:75,id:'prog1'},{t:150,id:'prog2'}];
+  milestones.forEach(m=>{
+    const el=document.getElementById(m.id);
+    el.classList.toggle('achieved',subtotal>=m.t);
+  });
+  if(subtotal<35) document.getElementById('progressMsg').textContent=`add $${(35-subtotal).toFixed(2)} more for $1 Membership!`;
+  else if(subtotal<75) document.getElementById('progressMsg').textContent=`add $${(75-subtotal).toFixed(2)} more for Free Shipping!`;
+  else if(subtotal<150) document.getElementById('progressMsg').textContent=`add $${(150-subtotal).toFixed(2)} more for a Free Gift!`;
+  else document.getElementById('progressMsg').textContent=`🎉 You've unlocked all rewards!`;
+
+  const freeShipping=subtotal>=75;
+  const shipping=freeShipping?0:9.99;
+  const total=subtotal+shipping;
+  const vipSavings=lines.reduce((s,l)=>{
+    if(l.name!=='Plexus Annual Membership') return s+(l.price*0.25*l.qty);
+    return s;
+  },0);
+
+  // Render summary lines
+  const sl=document.getElementById('summaryLines');
+  sl.innerHTML=lines.map(l=>`<div class="summary-line"><span class="name">${l.name}${l.qty>1?' x'+l.qty:''}</span><span class="val">$${(l.price*l.qty).toFixed(2)}</span></div>`).join('');
+
+  document.getElementById('summaryPV').textContent=totalPV+' PV';
+  document.getElementById('subtotalLabel').textContent=`Subtotal (${itemCount} Item${itemCount!==1?'s':''})`;
+  document.getElementById('summarySubtotal').textContent='$'+subtotal.toFixed(2);
+  document.getElementById('summaryShipping').textContent=freeShipping?'Free':'$9.99';
+  document.getElementById('summaryTotal').textContent='$'+total.toFixed(2);
+  document.getElementById('vipSavings').textContent=vip?`You're saving $${vipSavings.toFixed(2)} as a VIP Member!`:`Add VIP Membership to save $${(lines.reduce((s,l)=>s+l.price*l.qty,0)*0.25).toFixed(2)}!`;
+  document.getElementById('vipSavings').style.background=vip?'#e8f5e9':'#f3f3f3';
+  document.getElementById('vipSavings').style.color=vip?'var(--success)':'var(--text-muted)';
+
+  // Cart title
+  const cartTotal=lines.filter(l=>l.name!=='Plexus Annual Membership').reduce((s,l)=>s+l.price*l.qty,0)+(state.hasMembership?1:0);
+  document.getElementById('cartTitleMeta').textContent=`(${itemCount} item${itemCount!==1?'s':''}: $${cartTotal.toFixed(2)})`;
+  document.getElementById('cartBadge').textContent=itemCount;
+
+  // PV: hide if no membership
+  document.querySelectorAll('#pd1PV,#pd2PV').forEach(el=>{el.style.display=vip?'':'none';});
+
+  // Price doubles
+  document.getElementById('pd1Price').textContent=state.items[0].removed?'—':'$'+(79*mult).toFixed(2);
+  document.getElementById('pd2Price').textContent=state.items[1].removed?'—':'$'+(79*mult).toFixed(2);
+}
+
+// ─── CHECKOUT ───
+function renderCheckout(){
+  updateSummary();
+  const vip=state.hasMembership;
+  const mult=(!vip&&state.membershipRemoved)?2:1;
+  let lines=[];
+  if(state.hasMembership) lines.push({name:'Plexus Annual Membership',price:1,pv:0,qty:1});
+  state.items.forEach(item=>{if(!item.removed) lines.push({name:item.name,price:item.price*mult,pv:vip?item.pv:0,qty:item.qty});});
+  state.suggestedAdded.forEach(item=>{if(!item.removed) lines.push({name:item.name,price:item.price*mult,pv:vip?item.pv:0,qty:1});});
+  let subtotal=lines.reduce((s,l)=>s+l.price*l.qty,0);
+  let totalPV=lines.reduce((s,l)=>s+l.pv*l.qty,0);
+  const freeShipping=subtotal>=75;
+  const shipping=freeShipping?0:9.99;
+  const total=subtotal+shipping;
+  document.getElementById('checkoutSummaryLines').innerHTML=lines.map(l=>`<div class="summary-line"><span class="name">${l.name}</span><span class="val">$${(l.price*l.qty).toFixed(2)}</span></div>`).join('');
+  document.getElementById('checkoutPV').textContent=totalPV+' PV';
+  document.getElementById('checkoutSubLabel').textContent=`Subtotal (${lines.length} Items)`;
+  document.getElementById('checkoutSubtotal').textContent='$'+subtotal.toFixed(2);
+  document.getElementById('checkoutShipping').textContent=freeShipping?'Free':'$9.99';
+  document.getElementById('checkoutTotal').textContent='$'+total.toFixed(2);
+  const savings=lines.filter(l=>l.name!=='Plexus Annual Membership').reduce((s,l)=>s+l.price*0.25*l.qty,0);
+  document.getElementById('checkoutSavings').textContent=vip?`You're saving $${savings.toFixed(2)} as a VIP Member!`:'';
+
+  // Rewards
+  const rewards=[];
+  if(subtotal>=35) rewards.push('🌟 $1 Membership Unlocked');
+  if(freeShipping) rewards.push('🚚 Free Shipping Unlocked');
+  if(subtotal>=150) rewards.push('🎁 Free Gift Unlocked');
+  const rEl=document.getElementById('checkoutRewards');
+  rEl.innerHTML=rewards.length?`<div style="background:var(--plexus-red-light);border-radius:7px;padding:10px 12px">${rewards.map(r=>`<div style="font-size:12px;color:var(--plexus-red);font-weight:600;margin-bottom:4px">${r}</div>`).join('')}</div>`:''
+
+  // Review lines
+  document.getElementById('reviewLines').innerHTML=lines.map(l=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)"><span>${l.name}${l.qty>1?' x'+l.qty:''}</span><span style="font-weight:600">$${(l.price*l.qty).toFixed(2)}</span></div>`).join('');
+}
+
+function renderConfirmation(){
+  const vip=state.hasMembership;
+  const mult=(!vip&&state.membershipRemoved)?2:1;
+  let lines=[];
+  if(state.hasMembership) lines.push({name:'Plexus Annual Membership',price:1,pv:0,qty:1});
+  state.items.forEach(item=>{if(!item.removed) lines.push({name:item.name,price:item.price*mult,pv:vip?item.pv:0,qty:item.qty});});
+  state.suggestedAdded.forEach(item=>{if(!item.removed) lines.push({name:item.name,price:item.price*mult,pv:vip?item.pv:0,qty:1});});
+  let subtotal=lines.reduce((s,l)=>s+l.price*l.qty,0);
+  let totalPV=lines.reduce((s,l)=>s+l.pv*l.qty,0);
+  const freeShipping=subtotal>=75;
+  const shipping=freeShipping?0:9.99;
+  const total=subtotal+shipping;
+  document.getElementById('confirmSummaryLines').innerHTML=lines.map(l=>`<div class="summary-line"><span class="name">${l.name}</span><span class="val">$${(l.price*l.qty).toFixed(2)}</span></div>`).join('');
+  document.getElementById('confirmPV').textContent=totalPV+' PV';
+  document.getElementById('confirmSubtotal').textContent='$'+subtotal.toFixed(2);
+  document.getElementById('confirmShipping').textContent=freeShipping?'Free':'$9.99';
+  document.getElementById('confirmTotal').textContent='$'+total.toFixed(2);
+}
+
+// ─── SHIPPING / PAYMENT SAVE ───
+function toggleEdit(section){
+  const form=document.getElementById(section+'Form');
+  const display=document.getElementById(section+'Display');
+  if(form.style.display==='none'){form.style.display='';display.style.display='none';}
+}
+function cancelEdit(section){
+  const form=document.getElementById(section+'Form');
+  const display=document.getElementById(section+'Display');
+  if(document.getElementById(section+'Display').querySelector('[id]') || section==='payment'){
+    // Just hide form
+  }
+  form.style.display='none';
+  display.style.display='';
+}
+function saveShipping(){
+  const name=document.getElementById('sfirst').value+' '+document.getElementById('slast').value;
+  const addr=document.getElementById('saddr1').value+', '+document.getElementById('scity').value+', '+document.getElementById('sstate').value+' '+document.getElementById('szip').value;
+  document.getElementById('shippingName').textContent=name;
+  document.getElementById('shippingAddr').textContent=addr;
+  document.getElementById('shippingForm').style.display='none';
+  document.getElementById('shippingDisplay').style.display='';
+  state.shippingSaved=true;
+}
+function savePayment(){
+  document.getElementById('paymentForm').style.display='none';
+  document.getElementById('paymentDisplay').style.display='';
+  state.paymentSaved=true;
+}
+function validateAddress(){
+  const v=document.getElementById('saddr1').value;
+  const msg=document.getElementById('addrValidMsg');
+  if(v.length>8){
+    msg.innerHTML='<div class="addr-suggestion"><span class="material-icons-round">info</span> Address looks valid. <a style="color:var(--plexus-red);cursor:pointer" onclick="this.parentElement.remove()">Confirm address</a></div>';
+  } else { msg.innerHTML=''; }
+}
+function toggleBilling(){
+  const checked=document.getElementById('billSameCheck').checked;
+  document.getElementById('billingForm').style.display=checked?'none':'';
+}
+function selectPayment(btn,type){
+  document.querySelectorAll('.payment-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['payCardForm','payVenmoForm','payPaypalForm','payVoucherForm'].forEach(id=>document.getElementById(id).style.display='none');
+  const map={card:'payCardForm',venmo:'payVenmoForm',paypal:'payPaypalForm',voucher:'payVoucherForm'};
+  document.getElementById(map[type]).style.display='';
+}
+function formatCard(input){
+  let v=input.value.replace(/\D/g,'').substring(0,16);
+  input.value=v.replace(/(.{4})/g,'$1 ').trim();
+}
+function placeOrder(){
+  showPage('confirmation');
+}
+
+// ─── MFA ───
+function selectMfa(method){
+  state.mfaMethod=method;
+  document.querySelectorAll('.mfa-option').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('mfa'+method.charAt(0).toUpperCase()+method.slice(1)).classList.add('selected');
+}
+function sendMfaCode(){
+  if(!state.mfaMethod){showToast('Please select email or SMS');return;}
+  showMfaStep(2);
+  document.getElementById('mfaCodeMsg').textContent='We sent a 5-digit code to your '+(state.mfaMethod==='email'?'email':'phone number')+'.';
+  document.getElementById('ci0').focus();
+}
+function showMfaStep(n){
+  ['mfaStep1','mfaStep2','mfaStep3'].forEach((id,i)=>document.getElementById(id).style.display=i===(n-1)?'':'none');
+}
+function moveToNext(input,idx){
+  input.value=input.value.replace(/[^0-9]/g,'');
+  if(input.value&&idx<4) document.getElementById('ci'+(idx+1)).focus();
+}
+function verifyCode(){
+  const code=[0,1,2,3,4].map(i=>document.getElementById('ci'+i).value).join('');
+  if(code.length<5){showToast('Please enter all 5 digits');return;}
+  showMfaStep(3);
+  setTimeout(()=>{
+    closeModal('mfaModal');
+    [0,1,2,3,4].forEach(i=>document.getElementById('ci'+i).value='');
+    showMfaStep(1);
+    state.mfaMethod=null;
+    showPage('confirmation');
+  },2000);
+}
+
+// ─── SHARE ───
+function generateLink(){
+  document.getElementById('shareModalContent').style.display='none';
+  document.getElementById('shareLinkContent').style.display='';
+}
+function copyLink(){
+  navigator.clipboard?.writeText('https://plexus.com/cart/share?id=PLX-XC8821K&promo=SAVE10').catch(()=>{});
+  showToast('Link copied to clipboard! 📋');
+}
+
+// ─── INVITE ───
+function sendInvite(){
+  const email=document.getElementById('inviteEmail').value.trim();
+  if(!email||!email.includes('@')){showToast('Please enter a valid email address');return;}
+  showToast('Invite sent to '+email+' ✉️');
+  document.getElementById('inviteEmail').value='';
+}
+
+// ─── TOAST ───
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.innerHTML=`<span class="material-icons-round" style="font-size:16px;color:#80ff9f">check_circle</span>${msg}`;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ─── INIT ───
+updateSummary();
+</script>
+</body>
+</html>
